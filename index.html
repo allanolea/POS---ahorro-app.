@@ -15,134 +15,341 @@
     .input-field:focus { border-color: #0284c7; outline: none; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2); }
   </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen">
-  <div class="max-w-4xl mx-auto space-y-6">
+<body class="p-3 md:p-6 min-h-screen">
+  <div class="max-w-4xl mx-auto space-y-5">
 
-    <!-- Header -->
-    <header class="flex justify-between items-center card-glass p-5 rounded-2xl">
+    <!-- Header con datos del Asesor -->
+    <header class="card-glass p-4 rounded-2xl flex flex-wrap justify-between items-center gap-3">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center font-bold text-white text-xl">S</div>
+        <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center font-bold text-white text-xl shadow-lg">S</div>
         <div>
-          <h1 class="text-xl font-bold">SumUp Ahorro</h1>
-          <p class="text-xs text-slate-400">Comparador Comercial vs Competencia</p>
+          <h1 class="text-lg font-bold">SumUp Ahorro</h1>
+          <p class="text-xs text-slate-400">Simulador Comercial vs Competencia</p>
         </div>
       </div>
-      <div class="text-right">
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-          Modo Oficial 2026
-        </span>
+      <div class="flex items-center gap-2">
+        <button onclick="abrirModalEmail()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl border border-slate-700 flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-envelope text-sky-400"></i> Propuesta Email
+        </button>
+        <button onclick="compartirWhatsApp()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow transition">
+          <i class="fa-brands fa-whatsapp"></i> WhatsApp
+        </button>
       </div>
     </header>
 
-    <!-- TPV Input -->
-    <div class="card-glass p-6 rounded-2xl space-y-4">
-      <div class="flex justify-between items-center">
-        <label class="text-sm font-semibold text-slate-300">Facturación Mensual Total (TPV)</label>
-        <span id="lblTpvFormatted" class="text-lg font-bold text-sky-400">$100.000.000</span>
+    <!-- TPV Principal y Tipo de Producto -->
+    <div class="card-glass p-5 rounded-2xl space-y-4">
+      <div class="flex flex-col md:flex-row justify-between md:items-center gap-2">
+        <div>
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Facturación Mensual Total (TPV)</label>
+          <div id="lblTpvFormatted" class="text-2xl font-black text-sky-400">$100.000.000</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-400">Producto:</span>
+          <select id="selProducto" onchange="actualizarTasasSumUp()" class="input-field text-xs py-1.5 px-3 rounded-lg font-medium">
+            <option value="pos">Lectores y Tap to Pay (CP)</option>
+            <option value="link">Link de Pago / Web (CNP)</option>
+          </select>
+        </div>
       </div>
+
       <div class="relative">
         <span class="absolute left-4 top-3 text-slate-400 font-bold">$</span>
-        <input type="number" id="inpTpv" value="100000000" step="100000" oninput="recalcular()" class="w-full pl-8 pr-4 py-3 rounded-xl input-field text-lg font-semibold">
+        <input type="number" id="inpTpv" value="100000000" step="500000" oninput="sincronizarPorTpv()" class="w-full pl-8 pr-4 py-2.5 rounded-xl input-field text-lg font-bold">
       </div>
-      <div class="flex flex-wrap gap-2 pt-1">
-        <button onclick="setTpv(5000000)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">$5M</button>
-        <button onclick="setTpv(15000000)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">$15M</button>
-        <button onclick="setTpv(30000000)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">$30M</button>
-        <button onclick="setTpv(60000000)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">$60M</button>
-        <button onclick="setTpv(100000000)" class="px-3 py-1 bg-sky-600/30 text-sky-300 text-xs rounded-lg border border-sky-500/40 font-semibold">$100M+</button>
+
+      <div class="flex flex-wrap gap-1.5 pt-1">
+        <button onclick="setTpvRapido(5000000)" class="px-2.5 py-1 bg-slate-800/80 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">$5M</button>
+        <button onclick="setTpvRapido(10000000)" class="px-2.5 py-1 bg-slate-800/80 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">$10M</button>
+        <button onclick="setTpvRapido(25000000)" class="px-2.5 py-1 bg-slate-800/80 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">$25M</button>
+        <button onclick="setTpvRapido(40000000)" class="px-2.5 py-1 bg-slate-800/80 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">$40M</button>
+        <button onclick="setTpvRapido(60000000)" class="px-2.5 py-1 bg-slate-800/80 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">$60M</button>
+        <button onclick="setTpvRapido(100000000)" class="px-2.5 py-1 bg-sky-500/20 text-sky-300 text-xs rounded-lg border border-sky-500/30 font-bold">$100M+</button>
       </div>
     </div>
 
-    <!-- Comparativa -->
+    <!-- Desglose por Método de Pago ($ y %) -->
+    <div class="card-glass p-5 rounded-2xl space-y-3">
+      <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+        <i class="fa-solid fa-chart-pie text-sky-400"></i> Participación de Ventas
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <!-- Débito -->
+        <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 space-y-1.5">
+          <div class="flex justify-between text-xs">
+            <span class="font-semibold text-slate-300">Débito</span>
+            <span id="lblMontoDeb" class="text-slate-400 font-mono">$60.000.000</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <input type="number" id="pctDebito" value="60" oninput="recalcular()" class="w-full p-1.5 rounded input-field text-right text-xs font-semibold">
+            <span class="text-xs text-slate-400 font-bold">%</span>
+          </div>
+        </div>
+        <!-- Crédito -->
+        <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 space-y-1.5">
+          <div class="flex justify-between text-xs">
+            <span class="font-semibold text-slate-300">Crédito</span>
+            <span id="lblMontoCred" class="text-slate-400 font-mono">$30.000.000</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <input type="number" id="pctCredito" value="30" oninput="recalcular()" class="w-full p-1.5 rounded input-field text-right text-xs font-semibold">
+            <span class="text-xs text-slate-400 font-bold">%</span>
+          </div>
+        </div>
+        <!-- Prepago / Efectivo -->
+        <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 space-y-1.5">
+          <div class="flex justify-between text-xs">
+            <span class="font-semibold text-slate-300">Prepago / Otros</span>
+            <span id="lblMontoOtros" class="text-slate-400 font-mono">$10.000.000</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <input type="number" id="pctOtros" value="10" oninput="recalcular()" class="w-full p-1.5 rounded input-field text-right text-xs font-semibold">
+            <span class="text-xs text-slate-400 font-bold">%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparativa en Paralelo -->
     <div class="grid md:grid-cols-2 gap-4">
-      <!-- Competencia -->
+
+      <!-- Columna Competencia -->
       <div class="card-glass p-5 rounded-2xl space-y-4 border-l-4 border-l-rose-500">
-        <h2 class="text-base font-bold text-rose-400 flex items-center gap-2">
-          <i class="fa-solid fa-building-columns"></i> Competencia Actual
-        </h2>
-        <div class="space-y-3 text-sm">
+        <div class="flex justify-between items-center">
+          <h2 class="text-sm font-bold text-rose-400 flex items-center gap-2">
+            <i class="fa-solid fa-building-columns"></i> Competencia Actual
+          </h2>
+          <span class="text-[10px] uppercase font-bold text-slate-400">Tasas Sin IVA</span>
+        </div>
+
+        <div class="space-y-3 text-xs">
           <div class="flex justify-between items-center">
             <span>Tasa Débito</span>
             <div class="flex items-center gap-1">
-              <input type="number" id="tasaCompDeb" value="2.19" step="0.01" oninput="recalcular()" class="w-16 p-1.5 rounded input-field text-center text-xs">%
+              <input type="number" id="tasaCompDeb" value="2.19" step="0.01" oninput="recalcular()" class="w-20 p-1.5 rounded input-field text-right font-semibold">%
             </div>
           </div>
           <div class="flex justify-between items-center">
             <span>Tasa Crédito</span>
             <div class="flex items-center gap-1">
-              <input type="number" id="tasaCompCred" value="2.69" step="0.01" oninput="recalcular()" class="w-16 p-1.5 rounded input-field text-center text-xs">%
+              <input type="number" id="tasaCompCred" value="2.69" step="0.01" oninput="recalcular()" class="w-20 p-1.5 rounded input-field text-right font-semibold">%
+            </div>
+          </div>
+
+          <!-- Cuotas Sin Interés Competencia -->
+          <div class="bg-rose-950/20 p-2.5 rounded-xl border border-rose-500/20 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-rose-300">Recargo Cuotas Sin Interés</span>
+              <select id="selCuotasPreset" onchange="aplicarPresetCuotas()" class="input-field text-[11px] p-1 rounded">
+                <option value="1.99">3 cuotas (1.99%)</option>
+                <option value="3.49" selected>6 cuotas (3.49%)</option>
+                <option value="4.99">9 cuotas (4.99%)</option>
+                <option value="6.99">12 cuotas (6.99%)</option>
+                <option value="custom">Personalizado</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <span class="text-[10px] text-slate-400">Tasa financiamiento</span>
+                <div class="flex items-center gap-1">
+                  <input type="number" id="tasaCompCuotas" value="3.49" step="0.01" oninput="recalcular()" class="w-full p-1 rounded input-field text-right text-xs">%
+                </div>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400">Participación en Crédito</span>
+                <div class="flex items-center gap-1">
+                  <input type="number" id="subPctCuotas" value="30" step="5" oninput="recalcular()" class="w-full p-1 rounded input-field text-right text-xs">%
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Costos Operativos -->
+          <div class="flex justify-between items-center">
+            <span>Boleta Electrónica mensual</span>
+            <div class="flex items-center gap-1">
+              <span class="text-slate-400">$</span>
+              <input type="number" id="costoBoletaComp" value="19900" step="1000" oninput="recalcular()" class="w-24 p-1.5 rounded input-field text-right font-semibold">
             </div>
           </div>
           <div class="flex justify-between items-center">
-            <span>Recargo Cuotas S/Int</span>
+            <span>Costo por Transacción total</span>
             <div class="flex items-center gap-1">
-              <input type="number" id="tasaCompCuotas" value="3.49" step="0.01" oninput="recalcular()" class="w-16 p-1.5 rounded input-field text-center text-xs">%
+              <span class="text-slate-400">$</span>
+              <input type="number" id="costoTxComp" value="15000" step="1000" oninput="recalcular()" class="w-24 p-1.5 rounded input-field text-right font-semibold">
             </div>
           </div>
-          <div class="flex justify-between items-center">
-            <span>Costo fijo por Boleta / Tx</span>
-            <div class="flex items-center gap-1">
-              <input type="number" id="costoCompFijo" value="29900" step="1000" oninput="recalcular()" class="w-24 p-1.5 rounded input-field text-right text-xs">
-            </div>
-          </div>
-          <div class="pt-3 border-t border-slate-700/60 flex justify-between font-bold text-base">
-            <span>Costo Total Mensual</span>
-            <span id="lblTotalComp" class="text-rose-400">$0</span>
+
+          <div class="pt-3 border-t border-slate-700 flex justify-between items-center font-bold text-sm">
+            <span>Costo Total Competencia</span>
+            <span id="lblTotalComp" class="text-rose-400 text-base">$0</span>
           </div>
         </div>
       </div>
 
-      <!-- SumUp -->
+      <!-- Columna SumUp -->
       <div class="card-glass p-5 rounded-2xl space-y-4 border-l-4 border-l-sky-500">
-        <h2 class="text-base font-bold text-sky-400 flex items-center gap-2">
-          <i class="fa-solid fa-bolt"></i> Con SumUp
-        </h2>
-        <div class="space-y-3 text-sm">
+        <div class="flex justify-between items-center">
+          <h2 class="text-sm font-bold text-sky-400 flex items-center gap-2">
+            <i class="fa-solid fa-bolt"></i> Con SumUp
+          </h2>
+          <span id="badgeTramo" class="text-[10px] bg-sky-500/10 text-sky-300 border border-sky-500/20 px-2 py-0.5 rounded-full font-semibold">Tramo $100M+</span>
+        </div>
+
+        <div class="space-y-3 text-xs">
           <div class="flex justify-between items-center">
-            <span>Tasa Débito</span>
-            <span id="lblSumupDeb" class="font-bold text-sky-300">0.89%</span>
+            <span>Tasa Débito Oficial</span>
+            <span id="lblSumupDeb" class="font-bold text-sky-300 text-sm">0,89%</span>
           </div>
           <div class="flex justify-between items-center">
-            <span>Tasa Crédito</span>
-            <span id="lblSumupCred" class="font-bold text-sky-300">1.59%</span>
+            <span>Tasa Crédito Oficial</span>
+            <span id="lblSumupCred" class="font-bold text-sky-300 text-sm">1,59%</span>
+          </div>
+
+          <div class="bg-emerald-950/20 p-2.5 rounded-xl border border-emerald-500/20 space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-emerald-300">Cuotas Sin Interés</span>
+              <span class="text-emerald-400 font-bold">0% (Bonificado)</span>
+            </div>
+            <p class="text-[10px] text-slate-400">SumUp no cobra sobretasa ni recargo por financiar compras en cuotas.</p>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span>Boleta Electrónica DTE</span>
+            <span class="text-emerald-400 font-bold">$0 (Gratis)</span>
           </div>
           <div class="flex justify-between items-center">
-            <span>Recargo Cuotas S/Int</span>
-            <span class="text-emerald-400 font-bold">0% (Bonificado)</span>
+            <span>Costo por Transacción</span>
+            <span class="text-emerald-400 font-bold">$0 (Sin recargo)</span>
           </div>
-          <div class="flex justify-between items-center">
-            <span>Boleta y Costo por Tx</span>
-            <span class="text-emerald-400 font-bold">$0 Gratis</span>
-          </div>
-          <div class="pt-3 border-t border-slate-700/60 flex justify-between font-bold text-base">
-            <span>Costo Total Mensual</span>
-            <span id="lblTotalSumup" class="text-sky-400">$0</span>
+
+          <div class="pt-3 border-t border-slate-700 flex justify-between items-center font-bold text-sm">
+            <span>Costo Total SumUp</span>
+            <span id="lblTotalSumup" class="text-sky-400 text-base">$0</span>
           </div>
         </div>
       </div>
+
     </div>
 
-    <!-- Tarjeta de Ahorro -->
-    <div id="captureArea" class="bg-gradient-to-r from-emerald-950/80 to-slate-900 border border-emerald-500/30 p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+    <!-- Tarjeta de Ahorro Neto -->
+    <div id="cardAhorro" class="bg-gradient-to-r from-emerald-950/90 via-slate-900 to-sky-950/70 border border-emerald-500/30 p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4 shadow-xl">
       <div>
-        <p class="text-xs uppercase tracking-wider text-emerald-400 font-bold">Ahorro Estimado para el Cliente</p>
-        <p id="lblAhorroMensual" class="text-3xl md:text-4xl font-extrabold text-emerald-400">$0</p>
-        <p class="text-xs text-slate-400 mt-1">Equivalente a <span id="lblAhorroAnual" class="text-emerald-300 font-bold">$0</span> al año</p>
+        <span class="text-[11px] uppercase tracking-wider text-emerald-400 font-black">Ahorro Neto para el Cliente</span>
+        <div id="lblAhorroMensual" class="text-3xl md:text-4xl font-extrabold text-emerald-400">$0 /mes</div>
+        <p class="text-xs text-slate-300 mt-1">Ahorro anual proyectado: <span id="lblAhorroAnual" class="text-emerald-300 font-bold">$0</span></p>
       </div>
-      <button onclick="copiarResumen()" class="px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg transition">
-        <i class="fa-solid fa-copy"></i> Copiar Cotización
-      </button>
+      <div class="flex gap-2">
+        <button onclick="compartirWhatsApp()" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-1.5 shadow transition">
+          <i class="fa-brands fa-whatsapp text-sm"></i> Enviar WhatsApp
+        </button>
+        <button onclick="abrirModalEmail()" class="px-4 py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow transition">
+          <i class="fa-solid fa-paper-plane text-sm"></i> Enviar Email
+        </button>
+      </div>
     </div>
 
   </div>
 
+  <!-- Modal Propuesta por Email -->
+  <div id="modalEmail" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 max-w-lg w-full rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold text-base text-white flex items-center gap-2">
+          <i class="fa-solid fa-envelope text-sky-400"></i> Propuesta Comercial Formal
+        </h3>
+        <button onclick="cerrarModalEmail()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="text-slate-400">Nombre del Cliente / Empresa</label>
+          <input type="text" id="emailCliente" value="Estimado Cliente" class="w-full p-2 rounded input-field">
+        </div>
+        <div>
+          <label class="text-slate-400">Email de destino</label>
+          <input type="email" id="emailDestino" placeholder="cliente@empresa.cl" class="w-full p-2 rounded input-field">
+        </div>
+        <div>
+          <label class="text-slate-400">Nombre del Asesor</label>
+          <input type="text" id="emailAsesor" value="Equipo Comercial SumUp" class="w-full p-2 rounded input-field">
+        </div>
+        <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 text-slate-300 space-y-1">
+          <p class="font-semibold text-white">Incluye beneficios oficiales:</p>
+          <p>✔ Lectores SmartPOS en comodato ($0 arriendo)</p>
+          <p>✔ Boleta Electrónica DTE gratuita e ilimitada</p>
+          <p>✔ Cuenta Digital SumUp con abonos 24/7</p>
+          <p>✔ 0% sobretasa en cuotas sin interés</p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="cerrarModalEmail()" class="px-3 py-1.5 bg-slate-800 text-slate-300 rounded-lg text-xs">Cerrar</button>
+        <button onclick="enviarGmailDirecto()" class="px-4 py-1.5 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-lg text-xs flex items-center gap-1.5">
+          <i class="fa-brands fa-google"></i> Abrir en Gmail
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Tarifas oficiales SumUp (Sin IVA)
+    const tarifasSumup = {
+      pos: [
+        { hasta: 3500000, deb: 2.90, cred: 2.90, tramo: '$0 a $3.5M' },
+        { hasta: 5000000, deb: 2.00, cred: 2.60, tramo: '$3.5M a $5M' },
+        { hasta: 10000000, deb: 1.90, cred: 2.40, tramo: '$5M a $10M' },
+        { hasta: 15000000, deb: 1.50, cred: 2.20, tramo: '$10M a $15M' },
+        { hasta: 25000000, deb: 1.30, cred: 2.10, tramo: '$15M a $25M' },
+        { hasta: 30000000, deb: 1.10, cred: 2.00, tramo: '$25M a $30M' },
+        { hasta: 40000000, deb: 1.00, cred: 1.90, tramo: '$30M a $40M' },
+        { hasta: 60000000, deb: 1.00, cred: 1.80, tramo: '$40M a $60M' },
+        { hasta: 100000000, deb: 0.95, cred: 1.68, tramo: '$60M a $100M' },
+        { hasta: Infinity, deb: 0.89, cred: 1.59, tramo: '$100M o más' }
+      ],
+      link: [
+        { hasta: 3500000, deb: 3.20, cred: 3.20, tramo: '$0 a $3.5M' },
+        { hasta: 5000000, deb: 2.30, cred: 2.90, tramo: '$3.5M a $5M' },
+        { hasta: 10000000, deb: 2.20, cred: 2.70, tramo: '$5M a $10M' },
+        { hasta: 15000000, deb: 1.80, cred: 2.50, tramo: '$10M a $15M' },
+        { hasta: 25000000, deb: 1.50, cred: 2.40, tramo: '$15M a $25M' },
+        { hasta: 30000000, deb: 1.30, cred: 2.30, tramo: '$25M a $30M' },
+        { hasta: 40000000, deb: 1.30, cred: 2.20, tramo: '$30M a $40M' },
+        { hasta: 60000000, deb: 1.30, cred: 2.10, tramo: '$40M a $60M' },
+        { hasta: 100000000, deb: 1.25, cred: 1.98, tramo: '$60M a $100M' },
+        { hasta: Infinity, deb: 1.19, cred: 1.89, tramo: '$100M o más' }
+      ]
+    };
+
     function fmt(n) {
       return '$' + Math.round(n).toLocaleString('es-CL');
     }
 
-    function setTpv(val) {
+    function setTpvRapido(val) {
       document.getElementById('inpTpv').value = val;
+      sincronizarPorTpv();
+    }
+
+    function sincronizarPorTpv() {
+      actualizarTasasSumUp();
+      recalcular();
+    }
+
+    function actualizarTasasSumUp() {
+      const tpv = parseFloat(document.getElementById('inpTpv').value) || 0;
+      const tipo = document.getElementById('selProducto').value;
+      const tabla = tarifasSumup[tipo];
+      const match = tabla.find(t => tpv <= t.hasta) || tabla[tabla.length - 1];
+
+      document.getElementById('lblSumupDeb').innerText = match.deb.toFixed(2).replace('.', ',') + '%';
+      document.getElementById('lblSumupCred').innerText = match.cred.toFixed(2).replace('.', ',') + '%';
+      document.getElementById('badgeTramo').innerText = 'Tramo ' + match.tramo;
+      recalcular();
+    }
+
+    function aplicarPresetCuotas() {
+      const val = document.getElementById('selCuotasPreset').value;
+      if (val !== 'custom') {
+        document.getElementById('tasaCompCuotas').value = val;
+      }
       recalcular();
     }
 
@@ -150,53 +357,71 @@
       const tpv = parseFloat(document.getElementById('inpTpv').value) || 0;
       document.getElementById('lblTpvFormatted').innerText = fmt(tpv);
 
-      // Mix de venta estimado: 60% débito, 30% crédito, 10% otros
-      const deb = tpv * 0.60;
-      const cred = tpv * 0.30;
+      const pDeb = parseFloat(document.getElementById('pctDebito').value) || 0;
+      const pCred = parseFloat(document.getElementById('pctCredito').value) || 0;
+      const pOtros = parseFloat(document.getElementById('pctOtros').value) || 0;
 
-      // Tasas SumUp automáticas por tramo (Sin IVA)
-      let sumupDeb = 0.89;
-      let sumupCred = 1.59;
-      if (tpv < 3500000) { sumupDeb = 2.90; sumupCred = 2.90; }
-      else if (tpv < 5000000) { sumupDeb = 2.00; sumupCred = 2.60; }
-      else if (tpv < 10000000) { sumupDeb = 1.90; sumupCred = 2.40; }
-      else if (tpv < 15000000) { sumupDeb = 1.50; sumupCred = 2.20; }
-      else if (tpv < 25000000) { sumupDeb = 1.30; sumupCred = 2.10; }
-      else if (tpv < 40000000) { sumupDeb = 1.00; sumupCred = 1.90; }
-      else if (tpv < 60000000) { sumupDeb = 1.00; sumupCred = 1.80; }
-      else if (tpv < 100000000) { sumupDeb = 0.95; sumupCred = 1.68; }
+      const mDeb = tpv * (pDeb / 100);
+      const mCred = tpv * (pCred / 100);
+      const mOtros = tpv * (pOtros / 100);
 
-      document.getElementById('lblSumupDeb').innerText = sumupDeb.toFixed(2) + '%';
-      document.getElementById('lblSumupCred').innerText = sumupCred.toFixed(2) + '%';
+      document.getElementById('lblMontoDeb').innerText = fmt(mDeb);
+      document.getElementById('lblMontoCred').innerText = fmt(mCred);
+      document.getElementById('lblMontoOtros').innerText = fmt(mOtros);
 
-      // Cálculo Competencia
+      // Tasas competencia
       const tCompDeb = parseFloat(document.getElementById('tasaCompDeb').value) || 0;
       const tCompCred = parseFloat(document.getElementById('tasaCompCred').value) || 0;
       const tCompCuotas = parseFloat(document.getElementById('tasaCompCuotas').value) || 0;
-      const fijoComp = parseFloat(document.getElementById('costoCompFijo').value) || 0;
+      const subPCuotas = parseFloat(document.getElementById('subPctCuotas').value) || 0;
+      const cBoleta = parseFloat(document.getElementById('costoBoletaComp').value) || 0;
+      const cTx = parseFloat(document.getElementById('costoTxComp').value) || 0;
 
-      const costoComp = (deb * (tCompDeb/100)) + (cred * (tCompCred/100)) + (cred * 0.5 * (tCompCuotas/100)) + fijoComp;
-      const costoSumup = (deb * (sumupDeb/100)) + (cred * (sumupCred/100));
+      const costoCompDeb = mDeb * (tCompDeb / 100);
+      const costoCompCred = mCred * (tCompCred / 100);
+      const baseCuotas = mCred * (subPCuotas / 100);
+      const sobrecostoCuotas = baseCuotas * (tCompCuotas / 100);
+      const totalCompetencia = costoCompDeb + costoCompCred + sobrecostoCuotas + cBoleta + cTx;
 
-      const ahorroMensual = Math.max(0, costoComp - costoSumup);
+      // Tasas SumUp
+      const tSumDeb = parseFloat(document.getElementById('lblSumupDeb').innerText.replace(',', '.')) || 0;
+      const tSumCred = parseFloat(document.getElementById('lblSumupCred').innerText.replace(',', '.')) || 0;
+
+      const totalSumup = (mDeb * (tSumDeb / 100)) + (mCred * (tSumCred / 100));
+      const ahorroMensual = Math.max(0, totalCompetencia - totalSumup);
       const ahorroAnual = ahorroMensual * 12;
 
-      document.getElementById('lblTotalComp').innerText = fmt(costoComp);
-      document.getElementById('lblTotalSumup').innerText = fmt(costoSumup);
+      document.getElementById('lblTotalComp').innerText = fmt(totalCompetencia);
+      document.getElementById('lblTotalSumup').innerText = fmt(totalSumup);
       document.getElementById('lblAhorroMensual').innerText = fmt(ahorroMensual) + ' /mes';
       document.getElementById('lblAhorroAnual').innerText = fmt(ahorroAnual);
     }
 
-    function copiarResumen() {
+    function compartirWhatsApp() {
       const tpv = document.getElementById('lblTpvFormatted').innerText;
       const ahorro = document.getElementById('lblAhorroMensual').innerText;
-      const anio = document.getElementById('lblAhorroAnual').innerText;
-      const texto = `Hola! Evaluando una facturación mensual de ${tpv}, con SumUp generas un ahorro de ${ahorro} (${anio} al año) gracias a tener 0% recargo en cuotas y boleta electrónica incluida sin costo mensual.`;
-      navigator.clipboard.writeText(texto);
-      alert('¡Resumen comercial copiado al portapapeles!');
+      const anual = document.getElementById('lblAhorroAnual').innerText;
+      const texto = `Hola! Evaluando tu facturación de ${tpv}, con SumUp generas un *ahorro de ${ahorro}* (${anual} al año).\n\nBeneficios incluidos:\n✔ 0% recargo por cuotas sin interés\n✔ $0 costo por boleta electrónica DTE\n✔ $0 costo fijo por transacción\n✔ Abonos automáticos a tu cuenta`;
+      window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(texto), '_blank');
     }
 
-    recalcular();
+    function abrirModalEmail() { document.getElementById('modalEmail').classList.remove('hidden'); }
+    function cerrarModalEmail() { document.getElementById('modalEmail').classList.add('hidden'); }
+
+    function enviarGmailDirecto() {
+      const email = document.getElementById('emailDestino').value;
+      const cliente = document.getElementById('emailCliente').value;
+      const tpv = document.getElementById('lblTpvFormatted').innerText;
+      const ahorro = document.getElementById('lblAhorroMensual').innerText;
+      const anual = document.getElementById('lblAhorroAnual').innerText;
+
+      const asunto = encodeURIComponent(`Propuesta Comercial SumUp - Ahorro Estimado: ${ahorro}`);
+      const cuerpo = encodeURIComponent(`Hola ${cliente},\n\nJunto con saludar, te comparto la evaluación comercial de medios de pago:\n\n- Facturación Evaluada: ${tpv}\n- Ahorro Mensual Estimado: ${ahorro}\n- Ahorro Anual Proyectado: ${anual}\n\nBeneficios SumUp:\n• Equipos SmartPOS en comodato sin arriendo\n• Boleta electrónica DTE gratuita\n• Abonos 24/7 con Cuenta Digital SumUp\n• Sin sobretasa por cuotas sin interés\n\nQuedo atento para coordinar la entrega.`);
+      
+      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${asunto}&body=${cuerpo}`, '_blank');
+    }
+
+    actualizarTasasSumUp();
   </script>
 </body>
 </html>
