@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SumUp - Comparador de Ahorro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body { background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .card-glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .input-field { background-color: #1e293b; border: 1px solid #334155; color: #f8fafc; transition: all 0.2s; }
+    .input-field:focus { border-color: #0284c7; outline: none; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2); }
+  </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+  <div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <header class="flex justify-between items-center card-glass p-5 rounded-2xl">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center font-bold text-white text-xl">S</div>
+        <div>
+          <h1 class="text-xl font-bold">SumUp Ahorro</h1>
+          <p class="text-xs text-slate-400">Comparador Comercial vs Competencia</p>
+        </div>
+      </div>
+      <div class="text-right">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          Modo Oficial 2026
+        </span>
+      </div>
+    </header>
+
+    <!-- TPV Input -->
+    <div class="card-glass p-6 rounded-2xl space-y-4">
+      <div class="flex justify-between items-center">
+        <label class="text-sm font-semibold text-slate-300">Facturación Mensual Total (TPV)</label>
+        <span id="lblTpvFormatted" class="text-lg font-bold text-sky-400">$100.000.000</span>
+      </div>
+      <div class="relative">
+        <span class="absolute left-4 top-3 text-slate-400 font-bold">$</span>
+        <input type="number" id="inpTpv" value="100000000" step="100000" oninput="recalcular()" class="w-full pl-8 pr-4 py-3 rounded-xl input-field text-lg font-semibold">
+      </div>
+      <div class="flex flex-wrap gap-2 pt-1">
+        <button onclick="setTpv(5000000)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">$5M</button>
+        <button onclick="setTpv(15000000)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">$15M</button>
+        <button onclick="setTpv(30000000)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">$30M</button>
+        <button onclick="setTpv(60000000)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">$60M</button>
+        <button onclick="setTpv(100000000)" class="px-3 py-1 bg-sky-600/30 text-sky-300 text-xs rounded-lg border border-sky-500/40 font-semibold">$100M+</button>
+      </div>
+    </div>
+
+    <!-- Comparativa -->
+    <div class="grid md:grid-cols-2 gap-4">
+      <!-- Competencia -->
+      <div class="card-glass p-5 rounded-2xl space-y-4 border-l-4 border-l-rose-500">
+        <h2 class="text-base font-bold text-rose-400 flex items-center gap-2">
+          <i class="fa-solid fa-building-columns"></i> Competencia Actual
+        </h2>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between items-center">
+            <span>Tasa Débito</span>
+            <div class="flex items-center gap-1">
+              <input type="number" id="tasaCompDeb" value="2.19" step="0.01" oninput="recalcular()" class="w-16 p-1.5 rounded input-field text-center text-xs">%
+            </div>
+          </div>
+          <div class="flex justify-between items-center">
+            <span>Tasa Crédito</span>
+            <div class="flex items-center gap-1">
+              <input type="number" id="tasaCompCred" value="2.69" step="0.01" oninput="recalcular()" class="w-16 p-1.5 rounded input-field text-center text-xs">%
+            </div>
+          </div>
+          <div class="flex justify-between items-center">
+            <span>Recargo Cuotas S/Int</span>
+            <div class="flex items-center gap-1">
+              <input type="number" id="tasaCompCuotas" value="3.49" step="0.01" oninput="recalcular()" class="w-16 p-1.5 rounded input-field text-center text-xs">%
+            </div>
+          </div>
+          <div class="flex justify-between items-center">
+            <span>Costo fijo por Boleta / Tx</span>
+            <div class="flex items-center gap-1">
+              <input type="number" id="costoCompFijo" value="29900" step="1000" oninput="recalcular()" class="w-24 p-1.5 rounded input-field text-right text-xs">
+            </div>
+          </div>
+          <div class="pt-3 border-t border-slate-700/60 flex justify-between font-bold text-base">
+            <span>Costo Total Mensual</span>
+            <span id="lblTotalComp" class="text-rose-400">$0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SumUp -->
+      <div class="card-glass p-5 rounded-2xl space-y-4 border-l-4 border-l-sky-500">
+        <h2 class="text-base font-bold text-sky-400 flex items-center gap-2">
+          <i class="fa-solid fa-bolt"></i> Con SumUp
+        </h2>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between items-center">
+            <span>Tasa Débito</span>
+            <span id="lblSumupDeb" class="font-bold text-sky-300">0.89%</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span>Tasa Crédito</span>
+            <span id="lblSumupCred" class="font-bold text-sky-300">1.59%</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span>Recargo Cuotas S/Int</span>
+            <span class="text-emerald-400 font-bold">0% (Bonificado)</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span>Boleta y Costo por Tx</span>
+            <span class="text-emerald-400 font-bold">$0 Gratis</span>
+          </div>
+          <div class="pt-3 border-t border-slate-700/60 flex justify-between font-bold text-base">
+            <span>Costo Total Mensual</span>
+            <span id="lblTotalSumup" class="text-sky-400">$0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjeta de Ahorro -->
+    <div id="captureArea" class="bg-gradient-to-r from-emerald-950/80 to-slate-900 border border-emerald-500/30 p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+      <div>
+        <p class="text-xs uppercase tracking-wider text-emerald-400 font-bold">Ahorro Estimado para el Cliente</p>
+        <p id="lblAhorroMensual" class="text-3xl md:text-4xl font-extrabold text-emerald-400">$0</p>
+        <p class="text-xs text-slate-400 mt-1">Equivalente a <span id="lblAhorroAnual" class="text-emerald-300 font-bold">$0</span> al año</p>
+      </div>
+      <button onclick="copiarResumen()" class="px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg transition">
+        <i class="fa-solid fa-copy"></i> Copiar Cotización
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    function fmt(n) {
+      return '$' + Math.round(n).toLocaleString('es-CL');
+    }
+
+    function setTpv(val) {
+      document.getElementById('inpTpv').value = val;
+      recalcular();
+    }
+
+    function recalcular() {
+      const tpv = parseFloat(document.getElementById('inpTpv').value) || 0;
+      document.getElementById('lblTpvFormatted').innerText = fmt(tpv);
+
+      // Mix de venta estimado: 60% débito, 30% crédito, 10% otros
+      const deb = tpv * 0.60;
+      const cred = tpv * 0.30;
+
+      // Tasas SumUp automáticas por tramo (Sin IVA)
+      let sumupDeb = 0.89;
+      let sumupCred = 1.59;
+      if (tpv < 3500000) { sumupDeb = 2.90; sumupCred = 2.90; }
+      else if (tpv < 5000000) { sumupDeb = 2.00; sumupCred = 2.60; }
+      else if (tpv < 10000000) { sumupDeb = 1.90; sumupCred = 2.40; }
+      else if (tpv < 15000000) { sumupDeb = 1.50; sumupCred = 2.20; }
+      else if (tpv < 25000000) { sumupDeb = 1.30; sumupCred = 2.10; }
+      else if (tpv < 40000000) { sumupDeb = 1.00; sumupCred = 1.90; }
+      else if (tpv < 60000000) { sumupDeb = 1.00; sumupCred = 1.80; }
+      else if (tpv < 100000000) { sumupDeb = 0.95; sumupCred = 1.68; }
+
+      document.getElementById('lblSumupDeb').innerText = sumupDeb.toFixed(2) + '%';
+      document.getElementById('lblSumupCred').innerText = sumupCred.toFixed(2) + '%';
+
+      // Cálculo Competencia
+      const tCompDeb = parseFloat(document.getElementById('tasaCompDeb').value) || 0;
+      const tCompCred = parseFloat(document.getElementById('tasaCompCred').value) || 0;
+      const tCompCuotas = parseFloat(document.getElementById('tasaCompCuotas').value) || 0;
+      const fijoComp = parseFloat(document.getElementById('costoCompFijo').value) || 0;
+
+      const costoComp = (deb * (tCompDeb/100)) + (cred * (tCompCred/100)) + (cred * 0.5 * (tCompCuotas/100)) + fijoComp;
+      const costoSumup = (deb * (sumupDeb/100)) + (cred * (sumupCred/100));
+
+      const ahorroMensual = Math.max(0, costoComp - costoSumup);
+      const ahorroAnual = ahorroMensual * 12;
+
+      document.getElementById('lblTotalComp').innerText = fmt(costoComp);
+      document.getElementById('lblTotalSumup').innerText = fmt(costoSumup);
+      document.getElementById('lblAhorroMensual').innerText = fmt(ahorroMensual) + ' /mes';
+      document.getElementById('lblAhorroAnual').innerText = fmt(ahorroAnual);
+    }
+
+    function copiarResumen() {
+      const tpv = document.getElementById('lblTpvFormatted').innerText;
+      const ahorro = document.getElementById('lblAhorroMensual').innerText;
+      const anio = document.getElementById('lblAhorroAnual').innerText;
+      const texto = `Hola! Evaluando una facturación mensual de ${tpv}, con SumUp generas un ahorro de ${ahorro} (${anio} al año) gracias a tener 0% recargo en cuotas y boleta electrónica incluida sin costo mensual.`;
+      navigator.clipboard.writeText(texto);
+      alert('¡Resumen comercial copiado al portapapeles!');
+    }
+
+    recalcular();
+  </script>
+</body>
+</html>
